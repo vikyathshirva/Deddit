@@ -13,6 +13,11 @@ import session from 'express-session';
 import connectRedis from 'connect-redis'
 import { MyContext } from "./types";
 
+declare module 'express-session' {
+    export interface SessionData {
+        userId: number;
+    }
+}
 
 
 
@@ -48,7 +53,7 @@ const main = async () => {
             resolvers: [HelloResolver,PostResolver,UserResolver],
             validate : false,
         }), 
-        context:({req, res}) :MyContext  => ({ em: orm.em, req,res })
+        context:({req, res}) : MyContext  => ({ em: orm.em, req,res })
     });
 
     apolloserver.applyMiddleware({ app});
