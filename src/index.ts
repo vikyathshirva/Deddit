@@ -11,6 +11,8 @@ import { UserResolver } from "./resolvers/user";
 import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis'
+import { MyContext } from "./types";
+
 
 
 
@@ -25,9 +27,19 @@ const main = async () => {
     app.use(
         session({
             name : 'qid',
-            store: new RedisStore({ client: redisClient }),
+            store: new RedisStore({ 
+                client: redisClient,
+                disableTouch : true,
+             }),
+             cookie: {
+                maxAge:  1000 * 60 * 60 * 24 * 365 * 10, // 10 years in milliseconds
+                 httpOnly : true,
+                 secure : __prod__,
+                 sameSite: 'lax' 
+
+             },
             saveUninitialized: false,
-            secret: 'keyboard cat',
+            secret: 'keyboasdfasdfaat',
             resave: false,
         })
     )
@@ -36,7 +48,7 @@ const main = async () => {
             resolvers: [HelloResolver,PostResolver,UserResolver],
             validate : false,
         }), 
-        context:()=> ({ em: orm.em })
+        context:({req, res}) :MyContext  => ({ em: orm.em, req,res })
     });
 
     apolloserver.applyMiddleware({ app});
